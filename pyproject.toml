@@ -1,0 +1,54 @@
+[tool.poetry]
+name = "info-gpt"
+version = "0.1.0"
+description = "Information Retrieval chatbot to fetch info from your internal sources."
+authors = ["Tushar Mittal <chiragmittal.mittal@gmail.com>"]
+readme = "README.md"
+packages = [{include = "info_gpt"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+requests = "^2.31.0"
+langchain = "^0.0.189"
+chromadb = "^0.3.25"
+asyncio = "^3.4.3"
+aiohttp = "^3.8.4"
+gpt4all = "^0.2.3"
+sentence-transformers = "^2.2.2"
+huggingface-hub = "^0.15.1"
+beautifulsoup4 = "^4.12.2"
+lxml = "^4.9.2"
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.0.270"
+pre-commit = "^3.3.2"
+detect-secrets = "^1.4.0"
+ipykernel = "^6.23.1"
+
+[tool.poetry.group.api.dependencies]
+fastapi = "^0.96.0"
+uvicorn = {extras = ["standard"], version = "^0.22.0"}
+python-multipart = "^0.0.6"
+celery = {extras = ["redis"], version = "^5.3.0"}
+
+[tool.ruff]
+respect-gitignore = true
+src = ["info_gpt", "tests"]
+select = ["ALL"]
+ignore = [
+  "D",
+  "ANN",
+  "TRY002",
+  "TRY003",
+  "PLR2004",
+  "G004",
+]
+unfixable = []
+line-length = 120
+
+[tool.poetry.scripts]
+ask = "info_gpt.chat:ask"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
