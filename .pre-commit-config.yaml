@@ -20,9 +20,16 @@ repos:
         args: ['--baseline', '.secrets.baseline']
 -   repo: local
     hooks:
-      - id: lint
+    -   id: lint
         name: Ruff
         entry: poetry run ruff check
         language: system
         types: [python]
         args: [--fix]
+
+    -   id: hadolint
+        name: Lint Dockerfiles
+        description: Runs hadolint to lint Dockerfiles
+        language: system
+        types: ["dockerfile"]
+        entry: hadolint

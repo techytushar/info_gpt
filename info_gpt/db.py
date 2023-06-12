@@ -13,5 +13,8 @@ def get_db(embedding_function):
 
 
 def get_db_with_embedding():
-    embeddings = HuggingFaceEmbeddings(model_name=constants.EMBEDDING_MODEL_NAME)
+    embeddings = HuggingFaceEmbeddings(
+        model_name=constants.EMBEDDING_MODEL_NAME,
+        model_kwargs={"device": "cpu"},
+    )
     return get_db(embeddings)

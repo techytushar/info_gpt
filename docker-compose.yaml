@@ -1,0 +1,26 @@
+version: '3'
+services:
+  api:
+    image: info-gpt
+    ports:
+      - 8000:8000
+    depends_on:
+      - redis
+      - celery_worker
+    environment:
+      - REDIS_URL=redis://redis:6379
+    command: gunicorn info_gpt.api.app:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000
+
+  celery_worker:
+    image: info-gpt
+    depends_on:
+      - redis
+    environment:
+      - REDIS_URL=redis://redis:6379
+    command: celery --app=info_gpt.api.tasks.celery_app worker --concurrency=2 --loglevel=info
+
+  redis:
+    image: redis:latest
+    restart: always
+    ports:
+      - 6379:6379
