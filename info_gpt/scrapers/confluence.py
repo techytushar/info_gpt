@@ -1,3 +1,4 @@
+"""Scrape data from all Confluence pages"""
 import json
 import logging
 import os
@@ -74,8 +75,7 @@ def get_page_content(page_id, base_url, username, password, params=None):
     return json.loads(response.content)["body"]["storage"]["value"]
 
 
-def read_all_pages():
-    base_url = os.environ["CONFLUENCE_DOMAIN"]  # https://{org}.atlassian.net/wiki/
+def read_all_pages(base_url: str, exclude_spaces: list[str] | None = None):
     username = os.environ["CONFLUENCE_USERNAME"]  # email
     password = os.environ[
         "CONFLUENCE_PASSWORD"
@@ -86,6 +86,7 @@ def read_all_pages():
         username,
         password,
         {"type": "global", "limit": 100},
+        exclude_spaces,
     )
     for space in spaces:
         logging.info(f"Fetching pages in space: {space['name']} ({space['id']})")

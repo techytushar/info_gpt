@@ -1,3 +1,4 @@
+"""Module for scrapping and ingesting data into the DB."""
 import logging
 
 from langchain.docstore.document import Document
@@ -32,7 +33,16 @@ class Ingest:
             ".html": Language.HTML,
         }
 
-    async def load_github(self, organization, file_extension):
+    async def load_github(self, organization: str, file_extension: str) -> None:
+        """Ingest scrapped data from GitHub into the DB.
+
+        Parameters
+        ----------
+        organization : str
+            GitHub organization name.
+        file_extension : str
+            Extension of the files to fetch.
+        """
         text_splitter = RecursiveCharacterTextSplitter.from_language(
             self.lang_extension_map[file_extension],
         )
@@ -50,13 +60,26 @@ class Ingest:
             except Exception:
                 logging.exception(f"Failed to process {len(files)} files")
 
-    def load_confluence(self):
+    def load_confluence(
+        self,
+        base_url: str,
+        exclude_spaces: list[str] | None = None,
+    ) -> None:
+        """Ingest scrapped data from confluence pages into the DB.
+
+        Parameters
+        ----------
+        base_url : str
+            Base URL of Confluence in the following format: https://{org}.atlassian.net/wiki/
+        exclude_spaces : list[str] | None
+            List of space names to exclude. Includes all pages by default.
+        """
         text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=256,
             chunk_overlap=16,
             length_function=len,
         )
-        for pages in confluence.read_all_pages():
+        for pages in confluence.read_all_pages(base_url, exclude_spaces):
             documents = [
                 Document(
                     page_content=page[0],

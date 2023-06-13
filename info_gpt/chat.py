@@ -23,6 +23,7 @@ def load_model() -> BaseRetrievalQA:
         echo=True,
         use_mlock=True,
         n_batch=16,
+        allow_download=True,
     )
 
     return RetrievalQA.from_chain_type(
