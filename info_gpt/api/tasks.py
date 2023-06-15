@@ -52,8 +52,3 @@ def get_answer_from_llm(query: str, response_url: str):
 
 
 
-@celery_app.task
-def get_answer_from_llm_via_query(query: str):
-    answer = ask(query, load_model())
-    return answer
-

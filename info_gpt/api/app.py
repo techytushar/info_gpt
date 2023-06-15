@@ -5,6 +5,8 @@ from fastapi import FastAPI, Form, HTTPException
 
 from info_gpt.api import constants, tasks
 
+from info_gpt.chat import ask, load_model
+
 from pydantic import BaseModel
 
 from fastapi.middleware.cors import CORSMiddleware
@@ -39,8 +41,8 @@ async def health_check():
 
 @app.post("/query/")
 async def answer_query(item: Item):
-    # answer = tasks.get_answer_from_llm_via_query(item.query_text)
-    return "sample answer"
+    answer = ask(item.query_text, load_model())
+    return answer
 
 @app.post("/slack/")
 async def slack_query(
