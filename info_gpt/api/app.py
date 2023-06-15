@@ -46,7 +46,7 @@ async def slack_query(
     if token != constants.SLACK_TOKEN:
         raise HTTPException(status_code=401, detail="Invalid token")
     tasks.get_answer_from_llm.delay(text, response_url)
-    return {"text": "Processing your request..."}
+    return {"text": "**Query:** {text} \nProcessing your request..."}
 
 
 if __name__ == "__main__":

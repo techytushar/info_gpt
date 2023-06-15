@@ -10,7 +10,6 @@ load_dotenv()
 class QASystem:
     @staticmethod
     def qa_without_sources(vector_store, query):
-        # openai_api_key = os.getenv("OPENAI_API_KEY")
         openai_api_key = streamlit.secrets["OPENAI_API_KEY"]
 
         llm = OpenAI(temperature=0, openai_api_key=openai_api_key)
@@ -39,4 +38,3 @@ class QASystem:
             return {"result": result["result"], "source_documents": result["source_documents"]}
 
         return {"result": result["result"]}
-
