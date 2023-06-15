@@ -49,3 +49,10 @@ def get_answer_from_llm(query: str, response_url: str):
     response = requests.post(response_url, json={"text": answer}, timeout=10)
     if response.status_code != 200:
         logger.error(f"Failed to send final response for query {query}")
+
+
+
+@celery_app.task
+def get_answer_from_llm_via_query(query: str):
+    answer = ask(query, load_model())
+    return answer
