@@ -18,6 +18,11 @@ sentence-transformers = "^2.2.2"
 huggingface-hub = "^0.15.1"
 beautifulsoup4 = "^4.12.2"
 lxml = "^4.9.2"
+atlassian-python-api = "^3.38.0"
+openai = "^0.27.8"
+pytesseract = "^0.3.10"
+pillow = "^9.5.0"
+tiktoken = "^0.4.0"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.0.270"
