@@ -14,7 +14,10 @@ CHROMA_SETTINGS = Settings(
 DB_COLLECTION_NAME = os.environ.get("DB_COLLECTION_NAME", "hackathon")
 
 # Model settings
-MODEL_TYPE = os.environ.get("MODEL_TYPE", "GPT4All")  # LlamaCpp or GPT4All supported
+MODEL_TYPE = os.environ.get(
+    "MODEL_TYPE",
+    "OpenAI",
+)  # LlamaCpp or GPT4All or OpenAI supported
 MODEL_PATH = os.environ.get(
     "MODEL_PATH",
     "./models/ggml-gpt4all-j-v1.3-groovy.bin",

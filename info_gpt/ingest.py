@@ -75,17 +75,17 @@ class Ingest:
             List of space names to exclude. Includes all pages by default.
         """
         text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=256,
-            chunk_overlap=16,
+            chunk_size=600,
+            chunk_overlap=20,
             length_function=len,
         )
         for pages in confluence.read_all_pages(base_url, exclude_spaces):
             documents = [
                 Document(
-                    page_content=page[0],
-                    metadata={"source": page[1]},
+                    page_content=page_info[0],
+                    metadata={"source": page_info[1]},
                 )
-                for page in pages
+                for page_info in pages
             ]
             try:
                 self.db.add_documents(text_splitter.split_documents(documents))
