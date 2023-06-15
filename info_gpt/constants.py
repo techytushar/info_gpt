@@ -11,7 +11,7 @@ CHROMA_SETTINGS = Settings(
     persist_directory=os.environ.get("DB_DIRECTORY", ".db"),
     anonymized_telemetry=False,
 )
-DB_COLLECTION_NAME = os.environ.get("DB_COLLECTION_NAME", "info_gpt")
+DB_COLLECTION_NAME = os.environ.get("DB_COLLECTION_NAME", "hackathon")
 
 # Model settings
 MODEL_TYPE = os.environ.get("MODEL_TYPE", "GPT4All")  # LlamaCpp or GPT4All supported
