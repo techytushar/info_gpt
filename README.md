@@ -5,7 +5,10 @@ Information retrieval on your private data using Embeddings Vector Search and LL
 
 ## Architecture
 
-![image description](assets/hld.png)
+![image description](assets/peak-genie.png)
+
+## Slack bot flow
+![image description](assets/slack-bot-flow.png)
 
 #### QA ChatBot
 
