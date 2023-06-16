@@ -1,3 +1,4 @@
+import json
 import logging
 from typing import Literal
 
@@ -7,6 +8,7 @@ from langchain.llms import GPT4All, LlamaCpp, OpenAI
 from langchain.prompts import PromptTemplate
 
 from info_gpt import constants
+from info_gpt.agent import Agent
 from info_gpt.db import get_db_with_embedding
 
 
@@ -60,32 +62,34 @@ def make_query(query):
     {query}
     """
 
-    prompt = PromptTemplate(
-        input_variables=["query"],
-        template= template)
+    prompt = PromptTemplate(input_variables=["query"], template=template)
 
     return prompt.format(query=query)
 
 
-def ask(query, retrieval_chain, show_on_webapp=False):
+def ask(query, retrieval_chain, *, show_on_webapp=False):
     logging.info(f"Getting answer for the query: {query}")
+    if "workflow" in query and "create" in query:
+        logging.info("Using the workflow creationg agent.")
+        response = Agent().workflow_agent(query)
+        return f"Workflow create with id: {json.loads(response.content)['id']}"
+
     result = retrieval_chain({"query": make_query(query)})
-    print(result)
 
     if show_on_webapp:
         source_documents = (
-        "References: \n" +
-        f"- [{result['source_documents'][0].metadata['title']}]({result['source_documents'][0].metadata['source']})\n" +
-        f"- [{result['source_documents'][1].metadata['title']}]({result['source_documents'][1].metadata['source']})\n" +
-        f"- [{result['source_documents'][2].metadata['title']}]({result['source_documents'][2].metadata['source']})\n"
+            "References: \n"  # noqa: ISC003
+            + f"- [{result['source_documents'][0].metadata['title']}]({result['source_documents'][0].metadata['source']})\n"  # noqa: E501
+            + f"- [{result['source_documents'][1].metadata['title']}]({result['source_documents'][1].metadata['source']})\n"  # noqa: E501
+            + f"- [{result['source_documents'][2].metadata['title']}]({result['source_documents'][2].metadata['source']})\n"  # noqa: E501
         )
         return result["result"], source_documents
 
     source_documents = (
-    "References:\n" +
-    f"• <{result['source_documents'][0].metadata['source']}|{result['source_documents'][0].metadata['title']}>\n" +
-    f"• <{result['source_documents'][1].metadata['source']}|{result['source_documents'][1].metadata['title']}>\n" +
-    f"• <{result['source_documents'][2].metadata['source']}|{result['source_documents'][2].metadata['title']}>\n"
+        "References:\n"  # noqa: ISC003
+        + f"• <{result['source_documents'][0].metadata['source']}|{result['source_documents'][0].metadata['title']}>\n"
+        + f"• <{result['source_documents'][1].metadata['source']}|{result['source_documents'][1].metadata['title']}>\n"
+        + f"• <{result['source_documents'][2].metadata['source']}|{result['source_documents'][2].metadata['title']}>\n"
     )
 
     return f"{result['result']} \n{source_documents}"
