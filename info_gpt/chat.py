@@ -4,6 +4,7 @@ from typing import Literal
 from langchain.chains import RetrievalQA
 from langchain.chains.retrieval_qa.base import BaseRetrievalQA
 from langchain.llms import GPT4All, LlamaCpp, OpenAI
+from langchain.prompts import PromptTemplate
 
 from info_gpt import constants
 from info_gpt.db import get_db_with_embedding
@@ -35,7 +36,7 @@ def load_model(
             n_ctx=constants.MODEL_N_CTX,
         )
     elif model_type == "OpenAI":
-        llm_model = OpenAI(temperature=0.2)
+        llm_model = OpenAI(temperature=constants.TEMPERATURE)
     else:
         error = "Model type not supported."
         raise Exception(error)
@@ -49,7 +50,41 @@ def load_model(
     )
 
 
-def ask(query, retrieval_chain) -> str:
+def make_query(query):
+    template = """
+    Format the answer in the following way-
+    Overview:- will have an overview regarding the main object of the query.
+    Answer:- should contain answer to the query properly formatted using bullet points if needed
+    FYI:- will have some Additional Info about the subject asked .Reply in a humorous way ,witty way.
+    Following is the query:
+    {query}
+    """
+
+    prompt = PromptTemplate(
+        input_variables=["query"],
+        template= template)
+
+    return prompt.format(query=query)
+
+
+def ask(query, retrieval_chain, show_on_webapp=False):
     logging.info(f"Getting answer for the query: {query}")
-    result = retrieval_chain({"query": query})
-    return result["result"]
+    result = retrieval_chain({"query": make_query(query)})
+
+    if show_on_webapp:
+        source_documents = (
+        "References: \n" +
+        f"- [{result['source_documents'][0].metadata['title']}]({result['source_documents'][0].metadata['source']})\n" +
+        f"- [{result['source_documents'][1].metadata['title']}]({result['source_documents'][1].metadata['source']})\n" +
+        f"- [{result['source_documents'][2].metadata['title']}]({result['source_documents'][2].metadata['source']})\n"
+        )
+        return result["result"], source_documents
+
+    source_documents = (
+    "References:\n" +
+    f"• <{result['source_documents'][0].metadata['source']}|{result['source_documents'][0].metadata['title']}>\n" +
+    f"• <{result['source_documents'][1].metadata['source']}|{result['source_documents'][1].metadata['title']}>\n" +
+    f"• <{result['source_documents'][2].metadata['source']}|{result['source_documents'][2].metadata['title']}>\n"
+    )
+
+    return f"{result['result']} \n{source_documents}"

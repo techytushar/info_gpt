@@ -32,11 +32,12 @@ async def slack_query(
     text : str
         Query sent by the user.
     response_url : str
-        Slack URL to send final response to.
+        Slack URL to send the final response to.
 
     Returns
     -------
-    None
+    dict
+        The response containing the query text and a processing message.
 
     Raises
     ------
@@ -46,7 +47,7 @@ async def slack_query(
     if token != constants.SLACK_TOKEN:
         raise HTTPException(status_code=401, detail="Invalid token")
     tasks.get_answer_from_llm.delay(text, response_url)
-    return {"text": "Processing your request..."}
+    return {"text": f"*Query:* {text} \nProcessing your request..."}
 
 
 if __name__ == "__main__":

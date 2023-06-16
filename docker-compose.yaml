@@ -20,6 +20,7 @@ services:
       - REDIS_URL=redis://redis:6379
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - DB_COLLECTION_NAME=${DB_COLLECTION_NAME}
+      - SLACK_TOKEN=${SLACK_TOKEN}
     command: celery --app=info_gpt.api.tasks.celery_app worker --concurrency=2 --loglevel=info
 
   redis:

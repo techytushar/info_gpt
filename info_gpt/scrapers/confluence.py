@@ -1,109 +1,51 @@
-"""Scrape data from all Confluence pages"""
-import json
 import logging
 import os
-from urllib.parse import parse_qs, urljoin, urlparse
 
-import requests
-from bs4 import BeautifulSoup
+from chromadb.config import Settings
+from langchain.document_loaders import ConfluenceLoader
+from langchain.embeddings.openai import OpenAIEmbeddings
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.vectorstores import Chroma
 
-from info_gpt import constants
+# Configure logger
+logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
+logger = logging.getLogger(__name__)
 
+# Document Loader
+loader = ConfluenceLoader(
+    url="https://peak-bi.atlassian.net/wiki",
+    username="devang.grewal@peak.ai",
+    api_key=os.environ["CONFLUENCE_PASSWORD"],
+)
 
-def get_spaces(base_url, username, password, params=None, exclude=None):
-    url = urljoin(base_url, "api/v2/spaces")
-    response = requests.get(
-        url,
-        auth=(username, password),
-        params=params,
-        timeout=constants.READ_TIMEOUT,
-    )
-    if response.status_code != 200:
-        error = (
-            f"Failed to fetch list of spaces. {response.status_code} {response.text}"
-        )
-        raise Exception(error)
+EMBEDDINGS = OpenAIEmbeddings(openai_api_key=os.environ["OPENAI_API_KEY"])
 
-    spaces = json.loads(response.content)["results"]
-    exclude = exclude or []
-    return list(filter(lambda space: space["name"] not in exclude, spaces))
+logger.info("Starting document scraping")
+documents = loader.load(
+    space_key="KBS",
+    include_attachments=False,
+    limit=1000,
+    include_archived_content=False,
+    include_comments=False,
+    include_restricted_content=False,
+)
+logger.info(f"Loaded {len(documents)} documents")
 
+vector_store = Chroma(
+    embedding_function=EMBEDDINGS,
+    collection_name="hackathon",
+    client_settings=Settings(
+        chroma_db_impl="duckdb+parquet",
+        persist_directory=os.environ.get("DB_DIRECTORY", ".db"),
+        anonymized_telemetry=False,
+    ),
+)
 
-def get_pages_in_space(space_id, base_url, username, password, params=None):
-    url = urljoin(base_url, f"api/v2/spaces/{space_id}/pages")
-    params = params or {}
-    next_token = True
-    while next_token:
-        response = requests.get(
-            url,
-            auth=(username, password),
-            params=params,
-            timeout=constants.READ_TIMEOUT,
-        )
-        if response.status_code != 200:
-            error = (
-                f"Failed to fetch list of pages in space {space_id}. {response.text}"
-            )
-            raise Exception(error)
+text_splitter = RecursiveCharacterTextSplitter(
+    chunk_size=600,
+    chunk_overlap=20,
+    length_function=len,
+)
 
-        pages = json.loads(response.content)
-        yield from pages["results"]
-
-        next_token = None
-        if pages.get("_links"):
-            next_token = parse_qs(urlparse(pages["_links"]["next"]).query)["cursor"][0]
-        params = {**params, "cursor": next_token}
-
-
-def get_page_content(page_id, base_url, username, password, params=None):
-    url = urljoin(base_url, f"rest/api/content/{page_id}")
-    params = params or {}
-    params = {
-        **params,
-        "expand": "body.storage",
-    }
-    response = requests.get(
-        url,
-        auth=(username, password),
-        params=params,
-        timeout=constants.READ_TIMEOUT,
-    )
-    if response.status_code != 200:
-        error = f"Failed to fetch page content for page {page_id}. {response.text}"
-        raise Exception(error)
-
-    return json.loads(response.content)["body"]["storage"]["value"]
-
-
-def read_all_pages(base_url: str, exclude_spaces: list[str] | None = None):
-    username = os.environ["CONFLUENCE_USERNAME"]  # email
-    password = os.environ[
-        "CONFLUENCE_PASSWORD"
-    ]  # https://id.atlassian.com/manage-profile/security/api-tokens
-
-    spaces = get_spaces(
-        base_url,
-        username,
-        password,
-        {"type": "global", "limit": 100},
-        exclude_spaces,
-    )
-    for space in spaces:
-        logging.info(f"Fetching pages in space: {space['name']} ({space['id']})")
-        pages = get_pages_in_space(
-            space["id"],
-            base_url,
-            username,
-            password,
-            {"status": "current", "limit": 100, "body-format": "storage"},
-        )
-        result = []
-        for page in pages:
-            content = page["body"]["storage"]["value"]
-            content = BeautifulSoup(content, "lxml").get_text(" ", strip=True)
-            link = urljoin(base_url, page["_links"]["webui"][1:])
-            result.append((content, link))
-        logging.info(
-            f"Found {len(result)} pages in space: {space['name']} ({space['id']})",
-        )
-        yield result
+logger.info("Inserting documents into DB...")
+vector_store.add_documents(text_splitter.split_documents(documents))

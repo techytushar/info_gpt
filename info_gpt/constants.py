@@ -23,6 +23,7 @@ MODEL_PATH = os.environ.get(
     "./models/ggml-gpt4all-j-v1.3-groovy.bin",
 )  # https://gpt4all.io/index.html
 MODEL_N_CTX = int(os.environ.get("MODEL_N_CTX", 128))
+TEMPERATURE = float(os.environ.get("TEMPERATURE", 0.2))
 
 # Embeddings settings
 EMBEDDING_MODEL_NAME = os.environ.get(

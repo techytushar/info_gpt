@@ -53,7 +53,4 @@ COPY --chown=poetry:poetry info_gpt info_gpt
 COPY --chown=poetry:poetry .db .db
 USER poetry
 
-ARG SLACK_TOKEN
-ENV SLACK_TOKEN=$SLACK_TOKEN
-
 CMD [ "gunicorn", "info_gpt.api.app:app", "--worker-class uvicorn.workers.UvicornWorker", "--bind 0.0.0.0:8000", "--workers 4"]
