@@ -55,8 +55,6 @@ def load_model(
 def make_query(query):
     template = """
     Format the answer in the following way-
-    Overview:- will have an overview regarding the main object of the query.
-    Answer:- should contain answer to the query properly formatted using bullet points if needed
     FYI:- will have some Additional Info about the subject asked .Reply in a humorous way ,witty way.
     Following is the query:
     {query}
@@ -74,7 +72,8 @@ def ask(query, retrieval_chain, *, show_on_webapp=False):
         response = Agent().workflow_agent(query)
         return f"Workflow create with id: {json.loads(response.content)['id']}"
 
-    result = retrieval_chain({"query": make_query(query)})
+    query = "Give the answer in most readable format \n" + query
+    result = retrieval_chain({"query": query})
 
     if show_on_webapp:
         source_documents = (
