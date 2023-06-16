@@ -48,6 +48,7 @@ def get_answer_from_llm(query: str, response_url: str):
     answer = ask(query, load_model())
     response = requests.post(response_url, json={"text": answer}, timeout=10)
     if response.status_code != 200:
-        logger.error(
-            f"Failed to send final response for query {query}. {response.content}",
-        )
+        logger.error(f"Failed to send final response for query {query}. {response.content}")
+
+
+
