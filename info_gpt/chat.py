@@ -70,6 +70,7 @@ def make_query(query):
 def ask(query, retrieval_chain, show_on_webapp=False):
     logging.info(f"Getting answer for the query: {query}")
     result = retrieval_chain({"query": make_query(query)})
+    print(result)
 
     if show_on_webapp:
         source_documents = (
