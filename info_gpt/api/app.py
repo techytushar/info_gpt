@@ -41,7 +41,7 @@ async def health_check():
 
 @app.post("/query/")
 async def answer_query(item: Item):
-    return ask(item.query_text, load_model())
+    return ask(item.query_text, load_model(), show_on_webapp=True)
 
 
 @app.post("/slack/")
