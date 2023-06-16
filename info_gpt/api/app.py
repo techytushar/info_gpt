@@ -2,16 +2,12 @@
 from typing import Annotated
 
 from fastapi import FastAPI, Form, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from info_gpt.api import constants, tasks
-from info_gpt.log_debugger import debug_logs
-
 from info_gpt.chat import ask, load_model
-
-from pydantic import BaseModel
-
-from fastapi.middleware.cors import CORSMiddleware
+from info_gpt.log_debugger import debug_logs
 
 app = FastAPI(
     title="Info GPT",
@@ -33,9 +29,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-class Item(BaseModel):
-    query_text: str
-   
 
 class Item(BaseModel):
     query_text: str
@@ -45,10 +38,11 @@ class Item(BaseModel):
 async def health_check():
     return "OK"
 
+
 @app.post("/query/")
 async def answer_query(item: Item):
-    answer = ask(item.query_text, load_model())
-    return answer
+    return ask(item.query_text, load_model())
+
 
 @app.post("/slack/")
 async def slack_query(
@@ -82,6 +76,7 @@ async def slack_query(
         raise HTTPException(status_code=401, detail="Invalid token")
     tasks.get_answer_from_llm.delay(text, response_url)
     return {"text": f"*Query:* {text} \nProcessing your request..."}
+
 
 @app.post("/logs/debug/")
 def logs_debugger(item: Item):
