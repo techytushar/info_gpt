@@ -1,4 +1,4 @@
-# Info-GPT
+# Peak Genie
 
 Information retrieval on your private data using Embeddings Vector Search and LLMs.
 
