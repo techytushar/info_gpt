@@ -8,12 +8,12 @@ load_dotenv()
 st.set_page_config(page_title="Doc QA Tool", page_icon=":magic_wand:", layout="centered")
 
 st.title(" :magic_wand: peak-genie: Peak Knowledge Base Question-Answering Tool")
-st.caption("peak-genie is an AI-powered Peak Knowledge Base QA tool that enables you to easily upload and analyze documents"
+st.caption("peak-genie is an AI-powered Peak Knowledge Base QA tool that enables you to analyze documents"
            " with advanced question-answering capabilities. "
            " peak-genie goes beyond traditional keyword-based search "
            " and utilizes vector embeddings and semantic search "
            "to deliver precise and efficient results"
-           " from your PDFs to improve your workflow efficiency.")
+           " from your documents to improve your workflow efficiency.")
 st.divider()
 
 

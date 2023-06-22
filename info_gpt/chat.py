@@ -5,7 +5,6 @@ from typing import Literal
 from langchain.chains import RetrievalQA
 from langchain.chains.retrieval_qa.base import BaseRetrievalQA
 from langchain.llms import GPT4All, LlamaCpp, OpenAI
-from langchain.prompts import PromptTemplate
 
 from info_gpt import constants
 from info_gpt.agent import Agent
@@ -50,19 +49,6 @@ def load_model(
         return_source_documents=True,
         verbose=True,
     )
-
-
-def make_query(query):
-    template = """
-    Format the answer in the following way-
-    FYI:- will have some Additional Info about the subject asked .Reply in a humorous way ,witty way.
-    Following is the query:
-    {query}
-    """
-
-    prompt = PromptTemplate(input_variables=["query"], template=template)
-
-    return prompt.format(query=query)
 
 
 def ask(query, retrieval_chain, *, show_on_webapp=False):
