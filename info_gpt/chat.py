@@ -68,9 +68,9 @@ def make_query(query):
 def ask(query, retrieval_chain, *, show_on_webapp=False):
     logging.info(f"Getting answer for the query: {query}")
     if "workflow" in query and "create" in query:
-        logging.info("Using the workflow creationg agent.")
+        logging.info("Using the workflow creation agent.")
         response = Agent().workflow_agent(query)
-        return f"Workflow create with id: {json.loads(response.content)['id']}"
+        return f"Workflow created with id: {json.loads(response.content)['id']}"
 
     query = "Give the answer in most readable format \n" + query
     result = retrieval_chain({"query": query})
